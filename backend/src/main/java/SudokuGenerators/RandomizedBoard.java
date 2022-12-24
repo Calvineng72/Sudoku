@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class RandomizedBoard {
   // 2D array representing the sudoku board
@@ -22,7 +24,6 @@ public class RandomizedBoard {
    * @param blockSize - length of one of the sudoku board blocks
    */
   public RandomizedBoard(int boardSize, int blockSize) {
-    // Initialize the sudoku board with the specified size
     this.sudokuBoard = new int[boardSize][boardSize];
     this.boardSize = boardSize;
     this.blockSize = blockSize;
@@ -48,7 +49,9 @@ public class RandomizedBoard {
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
         // Create a list of options (1 through 9) for the current cell
-        List<Integer> options = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
+        List<Integer> options = IntStream.rangeClosed(1, this.boardSize + 1)
+                                         .boxed()
+                                         .collect(Collectors.toList());
         // Keep trying new random numbers until a valid one is found or the list of options is empty
         while (!options.isEmpty()) {
           int randomNumber = options.remove(random.nextInt(options.size()));
@@ -57,6 +60,28 @@ public class RandomizedBoard {
             break;
           }
         }
+      }
+    }
+  }
+
+  /**
+   * Removes a random 2/3 of the values from the sudoku board by replacing them with 0.
+   */
+  public void removeValues() {
+    // Create a new random number generator
+    Random random = new Random();
+    // Calculate the number of cells to remove from the board
+    int cellsToRemove = (int) (this.boardSize * this.boardSize * 2.0 / 3.0);
+
+    // Keep removing cells until the desired number has been reached
+    while (cellsToRemove > 0) {
+      // Generate random indices for a cell
+      int row = random.nextInt(this.boardSize);
+      int column = random.nextInt(this.boardSize);
+      // If the value at the current cell is not 0, replace it with 0 and decrease the counter
+      if (this.sudokuBoard[row][column] != 0) {
+        this.sudokuBoard[row][column] = 0;
+        cellsToRemove--;
       }
     }
   }
