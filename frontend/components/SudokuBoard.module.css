@@ -1,0 +1,11 @@
+.square {
+    text-align: center;
+    font-size: 50px;
+    width: 60px;
+    height: 60px;
+    border: 1px #808080 solid;
+}
+
+.oddSection {
+    background: #d3d3d3;
+}
