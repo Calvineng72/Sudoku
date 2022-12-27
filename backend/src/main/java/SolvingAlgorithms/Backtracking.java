@@ -1,5 +1,7 @@
 package SolvingAlgorithms;
 
+import java.util.Arrays;
+
 public class Backtracking {
   // 2D array representing the sudoku board
   private final int[][] sudokuBoard;
@@ -32,7 +34,9 @@ public class Backtracking {
    * @return sudoku board as a 2D int array
    */
   public int[][] getSudokuBoard() {
-    return this.sudokuBoard;
+    return Arrays.stream(this.sudokuBoard)
+        .map(int[]::clone)
+        .toArray(int[][]::new);
   }
 
   /**

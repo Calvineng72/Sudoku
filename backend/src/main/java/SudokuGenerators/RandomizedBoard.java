@@ -35,7 +35,9 @@ public class RandomizedBoard {
    * @return the sudoku board as a 2D int array
    */
   public int[][] getSudokuBoard() {
-    return this.sudokuBoard;
+    return Arrays.stream(this.sudokuBoard)
+                 .map(int[]::clone)
+                 .toArray(int[][]::new);
   }
 
   /**
