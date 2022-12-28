@@ -16,7 +16,7 @@ export default function createGameEnvironment(): JSX.Element[] {
             className = styles.square;
         }
 
-        html.push(<input className={className} type="text" pattern="[0-9]"
+        html.push(<input className={className} key={i} type="text" pattern="[0-9]"
             inputMode='numeric' maxLength={1}/>);
     }
     
