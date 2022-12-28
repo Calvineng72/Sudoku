@@ -1,6 +1,5 @@
 package SudokuGenerators;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +15,9 @@ public class RandomizedBoard {
 
   // Size of the blocks in the sudoku board (e.g. 3 for a 9x9 board with 3x3 blocks)
   private final int blockSize;
+
+  // Constant representing an empty cell in the sudoku board
+  private static final int NO_VALUE = 0;
 
   /**
    * Constructor for the RandomizedBoard class
@@ -43,27 +45,36 @@ public class RandomizedBoard {
   /**
    * Generates a random sudoku puzzle by filling in the sudoku board with valid values
    */
-  public void generatePuzzle() {
+  public boolean generatePuzzle() {
     // Create a new random number generator
     Random random = new Random();
 
-    // Iterate through each cell of the board
+    // Iterate through each cell of the sudoku board
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
-        // Create a list of options (1 through 9) for the current cell
-        List<Integer> options = IntStream.rangeClosed(1, this.boardSize + 1)
-                                         .boxed()
-                                         .collect(Collectors.toList());
-        // Keep trying new random numbers until a valid one is found or the list of options is empty
-        while (!options.isEmpty()) {
-          int randomNumber = options.remove(random.nextInt(options.size()));
-          if (validPuzzle(row, column, randomNumber)) {
-            this.sudokuBoard[row][column] = randomNumber;
-            break;
+        // If the current cell is empty, try filling it with a valid number
+        if (this.sudokuBoard[row][column] == NO_VALUE) {
+          List<Integer> options = IntStream.rangeClosed(1, this.boardSize)
+              .boxed()
+              .collect(Collectors.toList());
+          // Keep trying new random numbers until a valid one is found or the list of options is empty
+          while (!options.isEmpty()) {
+            int randomNumber = options.remove(random.nextInt(options.size()));
+            if (validPuzzle(row, column, randomNumber)) {
+              this.sudokuBoard[row][column] = randomNumber;
+              if (generatePuzzle()) {
+                return true;
+              }
+              this.sudokuBoard[row][column] = NO_VALUE;
+            }
+            if (options.isEmpty()) {
+              return false;
+            }
           }
         }
       }
     }
+    return true;
   }
 
   /**

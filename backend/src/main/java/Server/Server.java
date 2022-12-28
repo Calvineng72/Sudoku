@@ -15,7 +15,7 @@ public class Server {
    * @param args
    */
   public static void main(String[] args) {
-    Spark.port(3231);
+    Spark.port(3232);
 
     after((request, response) -> {
       response.header("Access-Control-Allow-Origin", "*");
