@@ -67,6 +67,8 @@ function solve() {
       const index = rowIndex * 9 + colIndex;
       const input = inputs[index];
       input.value = value.toString();
+      input.style.color = 'black';
+      input.setAttribute('disabled', 'true');
     });
   });
 }
