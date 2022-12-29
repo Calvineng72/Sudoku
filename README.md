@@ -1,43 +1,26 @@
 # Sudoku
 
-Sudoku is a web-application built with Next.js and Material UI that creates sudoku puzzles and allows ussers to solve them. Users may erceive assistance from the "check" and "solve" buttons, which check their progress and solves the puzzle, respectively. 
+Sudoku is a web-application built with Next.js and Material UI that creates sudoku puzzles and allows users to solve them. Users may receive assistance from the "check" and "solve" buttons, which checks their progress and solves the puzzle, respectively. The goal of the project was to solidify understandings of API fetches and gain more practice with frontend engineering. In the future, I hope to implement the Algorithm X with Dancing Links to solve sudoku puzzles, as it is faster than the already implemented backtracing algorithm. 
 
 ## Getting Started
 
-These instructions will give you a copy of the project up and running on
-your local machine for development and testing purposes. See deployment
-for notes on deploying the project on a live system.
-
-### Prerequisites
-
 First, clone the repository:
 
-      git clone https://github.com/Calvineng72/Sudoku.git
+    git clone https://github.com/Calvineng72/Sudoku.git
       
 Then, install the required dependencies: 
-
-      cd frontend
-      npm install
+ 
+    cd frontend
+ 
+    npm install
       
-Finally, run the development server:
+Next, run the development server:
 
-      npm run dev
+    npm run dev
+    
+Finally, execute the backend server and go to the following link:
 
-### Installing
-
-A step by step series of examples that tell you how to get a development
-environment running
-
-Say what the step will be
-
-    Give the example
-
-And repeat
-
-    until finished
-
-End with an example of getting some data out of the system or using it
-for a little demo
+    http://localhost:3000
 
 ## Running the tests
 
