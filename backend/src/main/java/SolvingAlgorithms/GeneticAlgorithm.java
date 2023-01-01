@@ -16,7 +16,6 @@ public class GeneticAlgorithm {
 
   // Size of the blocks in the sudoku board (e.g. 3 for a 9x9 board with 3x3 blocks)
   private final int blockSize;
-
   private List<int[][]> population;
 
   private Random random;
@@ -24,12 +23,10 @@ public class GeneticAlgorithm {
   // Constant representing an empty cell in the sudoku board
   private static final int NO_VALUE = 0;
 
-  private static final int POPULATION_SIZE = 100;
-  private static final int TOURNAMENT_SIZE = 20;
-  private static final double MUTATION_RATE = 0.06;
-  private static final int MAX_GENERATIONS = 250;
-  private static final int MIN_FITNESS_THRESHOLD = 0;
-
+  private static final int POPULATION_SIZE = 150;
+  private static final int TOURNAMENT_SIZE = 30;
+  private static final double MUTATION_RATE = 0.05;
+  private static final int MAX_GENERATIONS = 500;
 
   /**
    * Constructor for the GeneticAlgorithm class
@@ -58,35 +55,38 @@ public class GeneticAlgorithm {
 
   public int[][] solve() {
     for (int i = 0; i < POPULATION_SIZE; i++) {
-      population.add(createIndividual());
+      this.population.add(createIndividual());
     }
 
     List<Integer> fitnesses = new ArrayList<>(POPULATION_SIZE);
-    for (int[][] individual : population) {
-      fitnesses.add(caclulateFitness(individual));
+    for (int[][] individual : this.population) {
+      fitnesses.add(calculateFitness(individual));
     }
+
+    System.out.println(fitnesses);
 
     int generation = 0;
     while (generation < MAX_GENERATIONS) {
-      int[][] parent1 = selection();
-      int[][] parent2 = selection();
-      int[][] child = mutate(crossover(parent1, parent2));
-      population.set(random.nextInt(POPULATION_SIZE), child);
-      fitnesses.set(random.nextInt(POPULATION_SIZE), caclulateFitness(child));
-
-      List<int[][]> fittestIndividuals = new ArrayList<>();
-      for (int i = 0; i < POPULATION_SIZE; i++) {
-        if (fitnesses.get(i) > MIN_FITNESS_THRESHOLD) {
-          fittestIndividuals.add(population.get(i));
-        }
-      }
+      // Select the fittest individuals for elitism
+      List<int[][]> fittestIndividuals = selectFittestIndividuals(fitnesses, 50);
 
       // Generate new individuals to fill the remaining slots in the population
       while (fittestIndividuals.size() < POPULATION_SIZE) {
-        fittestIndividuals.add(createIndividual());
+        int[][] parent1 = selection();
+        int[][] parent2 = selection();
+        fittestIndividuals.add(mutate(crossover(parent1, parent2)));
       }
 
-      this.population = fittestIndividuals;
+      population = fittestIndividuals;
+
+      // Calculate the fitness of the new population
+      fitnesses.clear();
+      for (int[][] individual : population) {
+        fitnesses.add(calculateFitness(individual));
+      }
+
+      System.out.println(fitnesses);
+
       generation++;
     }
 
@@ -96,7 +96,7 @@ public class GeneticAlgorithm {
         fittestIndex = i;
       }
     }
-    return population.get(fittestIndex);
+    return this.population.get(fittestIndex);
   }
 
   private int[][] createIndividual() {
@@ -105,7 +105,7 @@ public class GeneticAlgorithm {
                            .toArray(int[][]::new);
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
-        if (puzzle[row][column] == 0) {
+        if (puzzle[row][column] == NO_VALUE) {
           puzzle[row][column] = random.nextInt(this.boardSize) + 1;
         }
       }
@@ -113,7 +113,7 @@ public class GeneticAlgorithm {
     return puzzle;
   }
 
-  private int caclulateFitness(int[][] individual) {
+  private int calculateFitness(int[][] individual) {
     int fitness = 0;
 
     for (int row = 0; row < this.boardSize; row++) {
@@ -161,17 +161,32 @@ public class GeneticAlgorithm {
     return fitness;
   }
 
+  private List<int[][]> selectFittestIndividuals(List<Integer> fitnesses, int numFittest) {
+    List<int[][]> fittestIndividuals = new ArrayList<>();
+    for (int i = 0; i < numFittest; i++) {
+      int fittestIndex = 0;
+      for (int j = 1; j < fitnesses.size(); j++) {
+        if (fitnesses.get(j) > fitnesses.get(fittestIndex)) {
+          fittestIndex = j;
+        }
+      }
+      fittestIndividuals.add(this.population.get(fittestIndex));
+      fitnesses.remove(fittestIndex);
+    }
+    return fittestIndividuals;
+  }
+
   private int[][] selection() {
     List<Integer> fitnesses = new ArrayList<>();
     for (int[][] individual : this.population) {
-      fitnesses.add(caclulateFitness(individual));
+      fitnesses.add(calculateFitness(individual));
     }
 
     List<int[][]> subpopulation = new ArrayList<>(TOURNAMENT_SIZE);
     List<Integer> subpopulationFitness = new ArrayList<>(TOURNAMENT_SIZE);
     for (int i = 0; i < TOURNAMENT_SIZE; i++) {
       int index = random.nextInt(POPULATION_SIZE);
-      subpopulation.add(population.get(index));
+      subpopulation.add(this.population.get(index));
       subpopulationFitness.add(fitnesses.get(index));
     }
 
@@ -186,12 +201,11 @@ public class GeneticAlgorithm {
 
   private int[][] crossover(int[][] parent1, int[][] parent2) {
     int[][] child = new int[this.boardSize][this.boardSize];
-
-    int crossoverPoint = random.nextInt(this.boardSize);
+    boolean parent = random.nextBoolean();
 
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
-        if (row < crossoverPoint) {
+        if (parent) {
           child[row][column] = parent1[row][column];
         } else {
           child[row][column] = parent2[row][column];
