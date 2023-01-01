@@ -3,7 +3,6 @@ package SolvingAlgorithms;
 import static org.junit.jupiter.api.Assertions.*;
 
 import SudokuGenerators.RandomizedBoard;
-import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 /**

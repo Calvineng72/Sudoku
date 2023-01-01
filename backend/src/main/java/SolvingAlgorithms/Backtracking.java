@@ -82,7 +82,7 @@ public class Backtracking {
    * @param value - value to determine if valid
    * @return true if not in the row, false if it is
    */
-  public boolean notInRow(int row, int value) {
+  private boolean notInRow(int row, int value) {
     // Iterate through each cell in the given row and check if the value appears
     for (int column = 0; column < this.boardSize; column++) {
       if (this.sudokuBoard[row][column] == value) {
@@ -99,7 +99,7 @@ public class Backtracking {
    * @param value  - value to determine if valid
    * @return true if not in the column, false if it is
    */
-  public boolean notInColumn(int column, int value) {
+  private boolean notInColumn(int column, int value) {
     // Iterate through each cell in the given column and check if the value appears
     for (int row = 0; row < this.boardSize; row++) {
       if (this.sudokuBoard[row][column] == value) {
@@ -117,7 +117,7 @@ public class Backtracking {
    * @param value  - value to determine if valid
    * @return true if not in the block, false if it is
    */
-  public boolean notInBlock(int row, int column, int value) {
+  private boolean notInBlock(int row, int column, int value) {
     // Calculate the starting indices for the block that the current cell belongs to
     int rowStart = row / this.blockSize * this.blockSize;
     int columnStart = column / this.blockSize * this.blockSize;
