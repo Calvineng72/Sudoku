@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class GeneticTest {
   @Test
-  public void testBasicSudoku() {
+  public void testBasicSudoku() throws InterruptedException {
     // Create a 4x4 Sudoku puzzle with a few known values
     int[][] puzzle = new int[][]{
         {1, 2, 0, 4},
@@ -30,10 +30,10 @@ public class GeneticTest {
   }
 
   @Test
-  public void testComplexSudoku() {
+  public void testComplexSudoku() throws InterruptedException {
     // Create a 9x9 Sudoku puzzle with multiple sub-squares
     int[][] puzzle = new int[][] {
-        {0, 0, 0, 0, 0, 0, 0, 2, 0},
+        {7, 0, 0, 0, 0, 0, 0, 2, 0},
         {6, 5, 0, 3, 8, 0, 0, 1, 0},
         {0, 0, 4, 0, 0, 5, 6, 0, 0},
         {0, 0, 8, 1, 0, 7, 0, 4, 0},

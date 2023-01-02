@@ -2,10 +2,14 @@ package SolvingAlgorithms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GeneticAlgorithm {
   // 2D array representing the sudoku board
@@ -18,15 +22,14 @@ public class GeneticAlgorithm {
   private final int blockSize;
   private List<int[][]> population;
 
-  private Random random;
+  private final Random random;
 
   // Constant representing an empty cell in the sudoku board
   private static final int NO_VALUE = 0;
 
-  private static final int POPULATION_SIZE = 150;
-  private static final int TOURNAMENT_SIZE = 30;
-  private static final double MUTATION_RATE = 0.05;
-  private static final int MAX_GENERATIONS = 500;
+  private static final int POPULATION_SIZE = 500;
+  private static final int TOURNAMENT_SIZE = 200;
+  private static final double MUTATION_RATE = 0.03;
 
   /**
    * Constructor for the GeneticAlgorithm class
@@ -42,61 +45,65 @@ public class GeneticAlgorithm {
     this.random = new Random();
   }
 
-  /**
-   * Getter method to return the sudoku board
-   *
-   * @return sudoku board as a 2D int array
-   */
-  public int[][] getSudokuBoard() {
-    return Arrays.stream(this.sudokuBoard)
-        .map(int[]::clone)
-        .toArray(int[][]::new);
-  }
-
   public int[][] solve() {
-    for (int i = 0; i < POPULATION_SIZE; i++) {
-      this.population.add(createIndividual());
-    }
+    // Initialize the population
+    this.population = IntStream.range(0, POPULATION_SIZE)
+        .mapToObj(i -> createIndividual())
+        .collect(Collectors.toList());
 
-    List<Integer> fitnesses = new ArrayList<>(POPULATION_SIZE);
-    for (int[][] individual : this.population) {
-      fitnesses.add(calculateFitness(individual));
-    }
+    // Calculate the fitness of each individual in the population
+    List<Integer> fitnesses = population.stream()
+        .map(this::calculateFitness)
+        .collect(Collectors.toList());
 
-    System.out.println(fitnesses);
-
-    int generation = 0;
-    while (generation < MAX_GENERATIONS) {
+    int generation = 1;
+    int[][] bestIndividual = null;
+    int bestFitness = Integer.MIN_VALUE;
+    while (generation < 200) {
       // Select the fittest individuals for elitism
-      List<int[][]> fittestIndividuals = selectFittestIndividuals(fitnesses, 50);
+      List<int[][]> fittestIndividuals = selectFittestIndividuals(fitnesses);
 
       // Generate new individuals to fill the remaining slots in the population
       while (fittestIndividuals.size() < POPULATION_SIZE) {
         int[][] parent1 = selection();
         int[][] parent2 = selection();
-        fittestIndividuals.add(mutate(crossover(parent1, parent2)));
+        fittestIndividuals.add(crossover(parent1, parent2));
       }
 
       population = fittestIndividuals;
 
-      // Calculate the fitness of the new population
-      fitnesses.clear();
-      for (int[][] individual : population) {
-        fitnesses.add(calculateFitness(individual));
-      }
+      // Mutate each individual in the population
+      population.replaceAll(this::mutate);
 
       System.out.println(fitnesses);
+      System.out.println(Collections.max(fitnesses));
+
+      // Calculate the fitness of the new population
+      fitnesses = population.stream()
+          .map(this::calculateFitness)
+          .collect(Collectors.toList());
+
+      int maxFitnessIndex = fitnesses.indexOf(Collections.max(fitnesses));
+      int[][] fittestIndividual = population.get(maxFitnessIndex);
+
+      if (fitnesses.get(maxFitnessIndex) > bestFitness) {
+        bestFitness = fitnesses.get(maxFitnessIndex);
+        bestIndividual = fittestIndividual;
+      }
+
+//      if (generation % 5 == 0) {
+//        updateMutationRate(generation, bestIndividual);
+//      }
+
+      // If the fittest individual has the maximum possible fitness, return it as the solution
+      if (bestFitness == 0) {
+        return bestIndividual;
+      }
 
       generation++;
     }
 
-    int fittestIndex = 0;
-    for (int i = 1; i < POPULATION_SIZE; i++) {
-      if (fitnesses.get(i) > fitnesses.get(fittestIndex)) {
-        fittestIndex = i;
-      }
-    }
-    return this.population.get(fittestIndex);
+    return bestIndividual;
   }
 
   private int[][] createIndividual() {
@@ -115,14 +122,6 @@ public class GeneticAlgorithm {
 
   private int calculateFitness(int[][] individual) {
     int fitness = 0;
-
-    for (int row = 0; row < this.boardSize; row++) {
-      for (int column = 0; column < this.boardSize; column++) {
-        if (individual[row][column] == this.sudokuBoard[row][column]) {
-          fitness++;
-        }
-      }
-    }
 
     for (int row = 0; row < this.boardSize; row++) {
       Set<Integer> usedValues = new HashSet<>();
@@ -161,54 +160,98 @@ public class GeneticAlgorithm {
     return fitness;
   }
 
-  private List<int[][]> selectFittestIndividuals(List<Integer> fitnesses, int numFittest) {
-    List<int[][]> fittestIndividuals = new ArrayList<>();
-    for (int i = 0; i < numFittest; i++) {
-      int fittestIndex = 0;
-      for (int j = 1; j < fitnesses.size(); j++) {
-        if (fitnesses.get(j) > fitnesses.get(fittestIndex)) {
-          fittestIndex = j;
-        }
-      }
-      fittestIndividuals.add(this.population.get(fittestIndex));
-      fitnesses.remove(fittestIndex);
-    }
-    return fittestIndividuals;
+  private List<int[][]> selectFittestIndividuals(List<Integer> fitnesses) {
+    // Create a list of indices to the original population
+    List<Integer> indices = IntStream.range(0, this.population.size())
+        .boxed()
+        .collect(Collectors.toList());
+
+    // Sort the indices by fitness value in descending order
+    indices.sort((i1, i2) -> fitnesses.get(i2).compareTo(fitnesses.get(i1)));
+
+    // Select the fittest individuals
+    return indices.stream()
+        .limit(200)
+        .map(i -> this.population.get(i))
+        .collect(Collectors.toList());
   }
 
   private int[][] selection() {
-    List<Integer> fitnesses = new ArrayList<>();
-    for (int[][] individual : this.population) {
-      fitnesses.add(calculateFitness(individual));
-    }
+    List<Integer> fitnesses = this.population.stream()
+        .map(this::calculateFitness)
+        .collect(Collectors.toList());
 
-    List<int[][]> subpopulation = new ArrayList<>(TOURNAMENT_SIZE);
-    List<Integer> subpopulationFitness = new ArrayList<>(TOURNAMENT_SIZE);
-    for (int i = 0; i < TOURNAMENT_SIZE; i++) {
-      int index = random.nextInt(POPULATION_SIZE);
-      subpopulation.add(this.population.get(index));
-      subpopulationFitness.add(fitnesses.get(index));
-    }
+    OptionalInt fittestIndex = IntStream.range(0, TOURNAMENT_SIZE)
+        .map(i -> this.random.nextInt(this.population.size()))
+        .reduce((i1, i2) -> fitnesses.get(i1) > fitnesses.get(i2) ? i1 : i2);
 
-    int fittestIndex = 0;
-    for (int i = 1; i < TOURNAMENT_SIZE; i++) {
-      if (subpopulationFitness.get(i) > subpopulationFitness.get(fittestIndex)) {
-        fittestIndex = i;
-      }
-    }
-    return subpopulation.get(fittestIndex);
+    return this.population.get(fittestIndex.orElse(-1));
   }
 
-  private int[][] crossover(int[][] parent1, int[][] parent2) {
-    int[][] child = new int[this.boardSize][this.boardSize];
-    boolean parent = random.nextBoolean();
+
+//  private int[][] selection() {
+//    List<Integer> fitnesses = new ArrayList<>();
+//    for (int[][] individual : this.population) {
+//      fitnesses.add(calculateFitness(individual));
+//    }
+//
+//    int minFitness = Collections.min(fitnesses);
+//    for (int i = 0; i < fitnesses.size(); i++) {
+//      fitnesses.set(i, fitnesses.get(i) + Math.abs(minFitness));
+//    }
+//
+//    int totalFitness = 0;
+//    for (int fitness : fitnesses) {
+//      totalFitness += fitness;
+//    }
+//
+//    int rand = random.nextInt(totalFitness);
+//    int current = 0;
+//    for (int i = 0; i < this.population.size(); i++) {
+//      current += fitnesses.get(i);
+//      if (current >= rand) {
+//        int[][] parent = this.population.get(i);
+//        return parent;
+//      }
+//    }
+//
+//    // This point should not be reached
+//    return null;
+//  }
+
+//  private int[][] crossover(int[][] parent1, int[][] parent2) {
+//    int[][] child = new int[this.boardSize][this.boardSize];
+//
+//    int crossoverRow = this.random.nextInt(this.boardSize);
+//    int crossoverColumn = this.random.nextInt(this.boardSize);
+//
+//    for (int row = 0; row < this.boardSize; row++) {
+//      for (int column = 0; column < this.boardSize; column++) {
+//        if (row < crossoverRow || (row == crossoverRow && column <= crossoverColumn)) {
+//          child[row][column] = parent1[row][column];
+//        } else {
+//          child[row][column] = parent2[row][column];
+//        }
+//      }
+//    }
+//
+//    return child;
+//  }
+
+  public int[][] crossover(int[][] parent1, int[][] parent2) {
+    int[][] child = Arrays.stream(this.sudokuBoard)
+                          .map(int[]::clone)
+                          .toArray(int[][]::new);
 
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
-        if (parent) {
-          child[row][column] = parent1[row][column];
-        } else {
-          child[row][column] = parent2[row][column];
+        if (this.sudokuBoard[row][column] == NO_VALUE) {
+          boolean useParent1Gene = this.random.nextBoolean();
+          if (useParent1Gene) {
+            child[row][column] = parent1[row][column];
+          } else {
+            child[row][column] = parent2[row][column];
+          }
         }
       }
     }
@@ -216,10 +259,39 @@ public class GeneticAlgorithm {
     return child;
   }
 
+//  private int[][] crossover(int[][] parent1, int[][] parent2) {
+//    int[][] child = new int[this.boardSize][this.boardSize];
+//
+//    int startRow = random.nextInt(this.boardSize);
+//    int startColumn = random.nextInt(this.boardSize);
+//    int endRow = startRow + random.nextInt(this.boardSize - startRow);
+//    int endColumn = startColumn + random.nextInt(this.boardSize - startColumn);
+//
+//    for (int row = startRow; row <= endRow; row++) {
+//      for (int column = startColumn; column <= endColumn; column++) {
+//        if (this.sudokuBoard[row][column] == NO_VALUE) {
+//          child[row][column] = parent2[row][column];
+//        }
+//      }
+//    }
+//
+//    for (int row = 0; row < this.boardSize; row++) {
+//      for (int column = 0; column < this.boardSize; column++) {
+//        if (row < startRow || row > endRow || column < startColumn || column > endColumn) {
+//          if (this.sudokuBoard[row][column] == NO_VALUE) {
+//            child[row][column] = parent1[row][column];
+//          }
+//        }
+//      }
+//    }
+//
+//    return child;
+//  }
+
   private int[][] mutate(int[][] individual) {
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
-        if (random.nextDouble() < MUTATION_RATE) {
+        if (this.sudokuBoard[row][column] == NO_VALUE && random.nextDouble() < MUTATION_RATE) {
           int mutation = random.nextInt(this.boardSize) + 1;
           individual[row][column] = mutation;
         }
@@ -227,4 +299,21 @@ public class GeneticAlgorithm {
     }
     return individual;
   }
+
+//  private void updateMutationRate(int generation, int[][] fittestIndividual) {
+//    // Calculate the current fitness of the fittest individual
+//    int fitness = calculateFitness(fittestIndividual);
+//
+//    // If the fitness is not improving, increase the mutation rate to encourage more exploration
+//    if (fitness <= this.bestFitness) {
+//      this.mutationRate *= 1.1;
+//    }
+//    // If the fitness is improving rapidly, decrease the mutation rate to encourage exploitation
+//    else if (fitness - this.bestFitness >= 2) {
+//      this.mutationRate *= 0.9;
+//    }
+//
+//    // Update the best fitness and generation number
+//    this.bestFitness = fitness;
+//  }
 }
