@@ -3,8 +3,10 @@ package SolvingAlgorithms;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Random;
 import java.util.Set;
@@ -15,6 +17,7 @@ import java.util.stream.IntStream;
  * Class representing a genetic algorithm for solving a sudoku puzzle.
  */
 public class GeneticAlgorithm {
+
   // 2D array representing the sudoku board
   private final int[][] sudokuBoard;
 
@@ -27,11 +30,11 @@ public class GeneticAlgorithm {
   // List of 2D arrays representing the current population of sudoku boards
   private List<int[][]> population;
 
-  // Random number generator
-  private final Random random;
-
   // Probability of a mutation occurring during the mutation step
   private double mutationRate;
+
+  // Random number generator
+  private final Random random;
 
   // Constant representing an empty cell in the sudoku board
   private static final int NO_VALUE = 0;
@@ -61,7 +64,8 @@ public class GeneticAlgorithm {
   }
 
   /**
-   * Method that runs the genetic algorithm to solve the sudoku puzzle.
+   * Runs the genetic algorithm to solve the sudoku puzzle, stopping once the maximum number
+   * of generations is reached
    *
    * @return The completed sudoku puzzle as a 2D int array
    */
@@ -100,10 +104,6 @@ public class GeneticAlgorithm {
       // Mutate each individual in the population
       this.population.replaceAll(this::mutate);
 
-      System.out.println(fitnesses);
-      System.out.println(Collections.max(fitnesses));
-      System.out.println(generation);
-
       // Calculate the fitness of the new population
       fitnesses = population.stream()
           .map(this::calculateFitness)
@@ -112,15 +112,15 @@ public class GeneticAlgorithm {
       int maxFitnessIndex = fitnesses.indexOf(Collections.max(fitnesses));
       int[][] fittestIndividual = population.get(maxFitnessIndex);
 
+      if (generation % 5 == 0) {
+        updateMutationRate(fittestIndividual, bestFitness);
+      }
+
       // Update the best individual if a fitter one is found
       if (fitnesses.get(maxFitnessIndex) > bestFitness) {
         bestFitness = fitnesses.get(maxFitnessIndex);
         bestIndividual = fittestIndividual;
       }
-
-//      if (generation % 5 == 0) {
-//        updateMutationRate(generation, bestIndividual, bestFitness);
-//      }
 
       // If the fittest individual has the maximum possible fitness, return it as the solution
       if (bestFitness == 0) {
@@ -134,15 +134,16 @@ public class GeneticAlgorithm {
   }
 
   /**
-   * Method that creates an individual (sudoku board) with randomly placed values.
+   * Creates an individual (sudoku board) with randomly placed values based upon the original
+   * puzzle provided to the class.
    *
    * @return The created individual (sudoku board) as a 2D int array
    */
   private int[][] createIndividual() {
     // Create a copy of the original sudoku board
     int[][] puzzle = Arrays.stream(this.sudokuBoard)
-                           .map(int[]::clone)
-                           .toArray(int[][]::new);
+        .map(int[]::clone)
+        .toArray(int[][]::new);
 
     // Fill empty cells with random values
     for (int row = 0; row < this.boardSize; row++) {
@@ -157,8 +158,8 @@ public class GeneticAlgorithm {
   }
 
   /**
-   * Method that calculates the fitness of an individual (sudoku board). The fitness is calculated
-   * as the number of correctly placed values in the board.
+   * Calculates the fitness of an individual (sudoku board). The individual is penalized when
+   * its cells do not match the constraints of the sudoku puzzle.
    *
    * @param individual - The individual (sudoku board) to be evaluated
    * @return The fitness of the individual as an int
@@ -210,6 +211,29 @@ public class GeneticAlgorithm {
       }
     }
 
+    // Store the count of each value in the sudoku board
+    Map<Integer, Integer> counts = new HashMap<>();
+    for (int row = 0; row < this.boardSize; row++) {
+      for (int column = 0; column < this.boardSize; column++) {
+        int value = individual[row][column];
+        // If the value already exists in the map, increment its count
+        if (counts.containsKey(value)) {
+          counts.put(value, counts.get(value) + 1);
+        }
+        // If the value does not exist in the map, add it with a count of 1
+        else {
+          counts.put(value, 1);
+        }
+      }
+    }
+
+    // Iterate through each value in the map
+    for (int key : counts.keySet()) {
+      int count = counts.getOrDefault(key, 0);
+      // Decrement the fitness by the difference between the expected count and actual count
+      fitness -= Math.abs(this.boardSize - count);
+    }
+
     return fitness;
   }
 
@@ -254,7 +278,86 @@ public class GeneticAlgorithm {
     return this.population.get(fittestIndex.orElse(-1));
   }
 
+  /**
+   * Creates a new child individual (sudoku board) by performing crossover on the given parent
+   * individuals.
+   *
+   * @param parent1 The first parent individual (sudoku board)
+   * @param parent2 The second parent individual (sudoku board)
+   * @return The created child individual (sudoku board)
+   */
+  private int[][] crossover(int[][] parent1, int[][] parent2) {
+    // Create a copy of the original sudoku board
+    int[][] child = Arrays.stream(this.sudokuBoard)
+        .map(int[]::clone)
+        .toArray(int[][]::new);
 
+    // Randomly select a crossover point
+    int crossoverRow = this.random.nextInt(this.boardSize);
+    int crossoverColumn = this.random.nextInt(this.boardSize);
+
+    // Fill the child with values from the parents according to the crossover point
+    for (int row = 0; row < this.boardSize; row++) {
+      for (int column = 0; column < this.boardSize; column++) {
+        if (this.sudokuBoard[row][column] == NO_VALUE) {
+          if (row < crossoverRow || (row == crossoverRow && column <= crossoverColumn)) {
+            child[row][column] = parent1[row][column];
+          } else {
+            child[row][column] = parent2[row][column];
+          }
+        }
+      }
+    }
+
+    return child;
+  }
+
+
+
+  /**
+   * Mutates the given individual (sudoku board) by randomly changing a cell's value.
+   *
+   * @param individual The individual (sudoku board) to be mutated
+   * @return The mutated individual (sudoku board)
+   */
+  private int[][] mutate(int[][] individual) {
+    for (int row = 0; row < this.boardSize; row++) {
+      for (int column = 0; column < this.boardSize; column++) {
+        if (this.sudokuBoard[row][column] == NO_VALUE && random.nextDouble() < MUTATION_RATE) {
+          int mutation = random.nextInt(this.boardSize) + 1;
+          individual[row][column] = mutation;
+        }
+      }
+    }
+
+    return individual;
+  }
+
+  /**
+   * Updates the mutation rate in order to discourage convergence to local optima.
+   *
+   * @param fittestIndividual The fittest individual in the current generation
+   * @param bestFitness The best fitness achieved from all generations
+   */
+  private void updateMutationRate(int[][] fittestIndividual, int bestFitness) {
+    // Calculate the current fitness of the fittest individual
+    int fitness = calculateFitness(fittestIndividual);
+
+    // If the fitness is not improving, increase the mutation rate to encourage more exploration
+    if (fitness <= bestFitness) {
+      this.mutationRate *= 1.1;
+    }
+    // If the fitness is improving rapidly, decrease the mutation rate to encourage exploitation
+    else if (fitness - bestFitness >= 2) {
+      this.mutationRate *= 0.9;
+    }
+
+    // Clamp the mutation rate to within the range [0, 1]
+    this.mutationRate = Math.max(0, Math.min(1, this.mutationRate));
+  }
+}
+
+//  All attempts at creating alternative methods to improve the genetic algorithm
 //  private int[][] selection() {
 //    List<Integer> fitnesses = new ArrayList<>();
 //    for (int[][] individual : this.population) {
@@ -284,40 +387,6 @@ public class GeneticAlgorithm {
 //    // This point should not be reached
 //    return null;
 //  }
-
-  /**
-   * Creates a new child individual (sudoku board) by performing crossover on the given parent individuals.
-   *
-   * @param parent1 The first parent individual (sudoku board)
-   * @param parent2 The second parent individual (sudoku board)
-   * @return The created child individual (sudoku board)
-   */
-  private int[][] crossover(int[][] parent1, int[][] parent2) {
-    // Create a copy of the original sudoku board
-    int[][] child = Arrays.stream(this.sudokuBoard)
-                          .map(int[]::clone)
-                          .toArray(int[][]::new);
-
-    // Randomly select a crossover point
-    int crossoverRow = this.random.nextInt(this.boardSize);
-    int crossoverColumn = this.random.nextInt(this.boardSize);
-
-    // Fill the child with values from the parents according to the crossover point
-    for (int row = 0; row < this.boardSize; row++) {
-      for (int column = 0; column < this.boardSize; column++) {
-        if (this.sudokuBoard[row][column] == NO_VALUE) {
-          if (row < crossoverRow || (row == crossoverRow && column <= crossoverColumn)) {
-            child[row][column] = parent1[row][column];
-          } else {
-            child[row][column] = parent2[row][column];
-          }
-        }
-      }
-    }
-
-    return child;
-  }
-
 //  public int[][] crossover(int[][] parent1, int[][] parent2) {
 //    int[][] child = Arrays.stream(this.sudokuBoard)
 //                          .map(int[]::clone)
@@ -367,37 +436,42 @@ public class GeneticAlgorithm {
 //
 //    return child;
 //  }
-
-  /**
-   * Mutates the given individual (sudoku board) by randomly changing a cell's value.
-   *
-   * @param individual The individual (sudoku board) to be mutated
-   * @return The mutated individual (sudoku board)
-   */
-  private int[][] mutate(int[][] individual) {
-    for (int row = 0; row < this.boardSize; row++) {
-      for (int column = 0; column < this.boardSize; column++) {
-        if (this.sudokuBoard[row][column] == NO_VALUE && random.nextDouble() < MUTATION_RATE) {
-          int mutation = random.nextInt(this.boardSize) + 1;
-          individual[row][column] = mutation;
-        }
-      }
-    }
-    
-    return individual;
-  }
-
-//  private void updateMutationRate(int generation, int[][] fittestIndividual, int bestFitness) {
-//    // Calculate the current fitness of the fittest individual
-//    int fitness = calculateFitness(fittestIndividual);
+//  public int[][] mutate(int[][] individual) {
+//    for (int row = 0; row < this.boardSize; row++) {
+//      for (int column = 0; column < this.boardSize; column++) {
+//        if (this.random.nextDouble() < this.mutationRate) {
+//          // Mutate this cell
+//          int rowStart = row / this.blockSize * this.blockSize;
+//          int columnStart = column / this.blockSize * this.blockSize;
 //
-//    // If the fitness is not improving, increase the mutation rate to encourage more exploration
-//    if (fitness <= bestFitness) {
-//      this.mutationRate *= 1.1;
+//          // Keep track of the values that are already used in the row, column, and block
+//          Set<Integer> usedValues = new HashSet<>();
+//          for (int i = 0; i < this.boardSize; i++) {
+//            usedValues.add(individual[row][i]);
+//            usedValues.add(individual[i][column]);
+//          }
+//          for (int i = rowStart; i < rowStart + this.blockSize; i++) {
+//            for (int j = columnStart * this.blockSize; j < columnStart + this.blockSize; j++) {
+//              usedValues.add(individual[i][j]);
+//            }
+//          }
+//
+//          // Choose a new value for the cell that is not already used in the row, column, or block
+//          int newValue;
+//          Set<Integer> set = IntStream.rangeClosed(1, this.boardSize)
+//              .boxed()
+//              .collect(Collectors.toSet());
+//          set.removeAll(usedValues);
+//          if (set.isEmpty()) {
+//            newValue = random.nextInt(this.boardSize) + 1;
+//          } else {
+//            newValue = set.stream().findFirst().get();
+//          }
+//
+//          // Set the value of the cell to the new value
+//          individual[row][column] = newValue;
+//        }
+//      }
 //    }
-//    // If the fitness is improving rapidly, decrease the mutation rate to encourage exploitation
-//    else if (fitness - bestFitness >= 2) {
-//      this.mutationRate *= 0.9;
-//    }
+//    return individual;
 //  }
-}
