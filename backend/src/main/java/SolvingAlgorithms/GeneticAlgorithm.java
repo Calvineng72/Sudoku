@@ -30,6 +30,9 @@ public class GeneticAlgorithm {
   // List of 2D arrays representing the current population of sudoku boards
   private List<int[][]> population;
 
+  // List of integers representing the fitness of each individual
+  private List<Integer> fitnesses;
+
   // Probability of a mutation occurring during the mutation step
   private double mutationRate;
 
@@ -48,7 +51,7 @@ public class GeneticAlgorithm {
   // Initial mutation rate
   private static final double MUTATION_RATE = 0.03;
 
-  // Initial mutation rate
+  // Number of elite individuals that move on to the next generation
   private static final int ELITE_SIZE = 250;
 
   /**
@@ -62,6 +65,7 @@ public class GeneticAlgorithm {
     this.boardSize = boardSize;
     this.blockSize = (int) Math.sqrt(boardSize);
     this.population = new ArrayList<>(POPULATION_SIZE);
+    this.fitnesses = new ArrayList<>(POPULATION_SIZE);
     this.random = new Random();
     this.mutationRate = MUTATION_RATE;
   }
@@ -74,14 +78,10 @@ public class GeneticAlgorithm {
    */
   public int[][] solve() {
     // Initialize the population
-    this.population = IntStream.range(0, POPULATION_SIZE)
-        .mapToObj(i -> createIndividual())
-        .collect(Collectors.toList());
+    initializePopulation();
 
     // Calculate the fitness of each individual in the population
-    List<Integer> fitnesses = population.stream()
-        .map(this::calculateFitness)
-        .collect(Collectors.toList());
+    calculateFitnesses();
 
     // Counter for the number of generations
     int generation = 1;
@@ -108,20 +108,18 @@ public class GeneticAlgorithm {
       this.population.replaceAll(this::mutate);
 
       // Calculate the fitness of the new population
-      fitnesses = population.stream()
-          .map(this::calculateFitness)
-          .collect(Collectors.toList());
+      calculateFitnesses();
 
-      int maxFitnessIndex = fitnesses.indexOf(Collections.max(fitnesses));
-      int[][] fittestIndividual = population.get(maxFitnessIndex);
+      int maxFitnessIndex = this.fitnesses.indexOf(Collections.max(this.fitnesses));
+      int[][] fittestIndividual = this.population.get(maxFitnessIndex);
 
       if (generation % 5 == 0) {
         updateMutationRate(fittestIndividual, bestFitness);
       }
 
       // Update the best individual if a fitter one is found
-      if (fitnesses.get(maxFitnessIndex) > bestFitness) {
-        bestFitness = fitnesses.get(maxFitnessIndex);
+      if (this.fitnesses.get(maxFitnessIndex) > bestFitness) {
+        bestFitness = this.fitnesses.get(maxFitnessIndex);
         bestIndividual = fittestIndividual;
       }
 
@@ -134,6 +132,18 @@ public class GeneticAlgorithm {
     }
 
     return bestIndividual;
+  }
+
+  private void initializePopulation() {
+    this.population = IntStream.range(0, POPULATION_SIZE)
+        .mapToObj(i -> createIndividual())
+        .collect(Collectors.toList());
+  }
+
+  private void calculateFitnesses() {
+    this.fitnesses = this.population.stream()
+        .map(this::fitness)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -188,7 +198,7 @@ public class GeneticAlgorithm {
    * @param individual - The individual (sudoku board) to be evaluated
    * @return The fitness of the individual as an int
    */
-  private int calculateFitness(int[][] individual) {
+  private int fitness(int[][] individual) {
     // Initialize the fitness to zero
     int fitness = 0;
 
@@ -290,7 +300,7 @@ public class GeneticAlgorithm {
   private int[][] selection() {
     // Calculate the fitness of each individual in the population
     List<Integer> fitnesses = this.population.stream()
-        .map(this::calculateFitness)
+        .map(this::fitness)
         .toList();
 
     // Select an individual randomly from the population multiple times and return the
@@ -369,7 +379,7 @@ public class GeneticAlgorithm {
    */
   private void updateMutationRate(int[][] fittestIndividual, int bestFitness) {
     // Calculate the current fitness of the fittest individual
-    int fitness = calculateFitness(fittestIndividual);
+    int fitness = fitness(fittestIndividual);
 
     // If the fitness is not improving, increase the mutation rate to encourage more exploration
     if (fitness <= bestFitness) {
