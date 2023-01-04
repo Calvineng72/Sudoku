@@ -56,7 +56,6 @@ public class GeneticTest {
     };
     GeneticAlgorithm sudoku = new GeneticAlgorithm(puzzle, 9);
     int[][] calculated = sudoku.solve();
-    System.out.println(Arrays.deepToString(calculated));
     assertArrayEquals(solution, calculated);
   }
 
@@ -88,7 +87,6 @@ public class GeneticTest {
     };
     GeneticAlgorithm sudoku = new GeneticAlgorithm(puzzle, 9);
     int[][] calculated = sudoku.solve();
-    System.out.println(Arrays.deepToString(calculated));
     assertArrayEquals(solution, calculated);
   }
 }
