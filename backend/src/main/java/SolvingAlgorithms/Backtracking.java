@@ -20,12 +20,11 @@ public class Backtracking {
    *
    * @param board     - 2D array representing the sudoku board
    * @param boardSize - length of the sudoku board
-   * @param blockSize - length of one of the sudoku board blocks
    */
-  public Backtracking(int[][] board, int boardSize, int blockSize) {
+  public Backtracking(int[][] board, int boardSize) {
     this.sudokuBoard = board;
     this.boardSize = boardSize;
-    this.blockSize = blockSize;
+    this.blockSize = (int) Math.sqrt(boardSize);
   }
 
   /**

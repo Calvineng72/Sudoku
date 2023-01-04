@@ -15,7 +15,7 @@ public class SudokuHandler implements Route {
 
   @Override
   public Object handle(Request request, Response response) {
-    RandomizedBoard puzzle = new RandomizedBoard(9, 3);
+    RandomizedBoard puzzle = new RandomizedBoard(9);
     puzzle.generatePuzzle();
     int[][] solution = puzzle.getSudokuBoard();
     puzzle.removeValues();

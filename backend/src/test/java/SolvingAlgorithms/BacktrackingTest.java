@@ -30,7 +30,7 @@ class BacktrackingTest {
     };
     // Create a Backtracking object for the puzzle and the expected size of the puzzle's sub-squares
     // (4x2 in this case)
-    Backtracking sudoku = new Backtracking(puzzle, 4, 2);
+    Backtracking sudoku = new Backtracking(puzzle, 4);
     // Solve the puzzle
     sudoku.solve();
     // Assert that the solved puzzle is equal to the expected solution
@@ -59,7 +59,7 @@ class BacktrackingTest {
     };
     // Create a Backtracking object for the puzzle and the expected size of the puzzle's sub-squares
     // (4x2 in this case)
-    Backtracking sudoku = new Backtracking(puzzle, 4, 2);
+    Backtracking sudoku = new Backtracking(puzzle, 4);
     // Solve the puzzle
     sudoku.solve();
     // Assert that the solved puzzle is equal to the expected solution
@@ -98,7 +98,7 @@ class BacktrackingTest {
     };
     // Create a Backtracking object for the puzzle and the expected size of the puzzle's sub-squares
     // (9x3 in this case)
-    Backtracking sudoku = new Backtracking(puzzle, 9, 3);
+    Backtracking sudoku = new Backtracking(puzzle, 9);
     // Solve the puzzle
     sudoku.solve();
     // Assert that the solved puzzle is equal to the expected solution
@@ -112,7 +112,7 @@ class BacktrackingTest {
   @Test
   public void testOnSmallRandomlyGenerated() {
     // Create a new RandomizedBoard object with a board size of 4 and block size of 2
-    RandomizedBoard randomPuzzle = new RandomizedBoard(4, 2);
+    RandomizedBoard randomPuzzle = new RandomizedBoard(4);
     // Generate a new puzzle
     randomPuzzle.generatePuzzle();
     // Get the expected solution from the RandomizedBoard object
@@ -124,7 +124,7 @@ class BacktrackingTest {
 
     // Create a Backtracking object for the puzzle and the expected size of the puzzle's sub-squares
     // (4x2 in this case)
-    Backtracking sudoku = new Backtracking(puzzle, 4, 2);
+    Backtracking sudoku = new Backtracking(puzzle, 4);
     // Solve the puzzle
     sudoku.solve();
     // Assert that the solved puzzle is equal to the expected solution
@@ -137,7 +137,7 @@ class BacktrackingTest {
   @Test
   public void testOnRandomlyGenerated() {
     // Create a new RandomizedBoard object with a board size of 9 and block size of 3
-    RandomizedBoard randomPuzzle = new RandomizedBoard(9, 3);
+    RandomizedBoard randomPuzzle = new RandomizedBoard(9);
     // Generate a new puzzle
     randomPuzzle.generatePuzzle();
     // Get the expected solution from the RandomizedBoard object
@@ -149,7 +149,7 @@ class BacktrackingTest {
 
     // Create a Backtracking object for the puzzle and the expected size of the puzzle's sub-squares
     // (9x3 in this case)
-    Backtracking sudoku = new Backtracking(puzzle, 9, 3);
+    Backtracking sudoku = new Backtracking(puzzle, 9);
     // Solve the puzzle
     sudoku.solve();
     // Assert that the solved puzzle is equal to the expected solution

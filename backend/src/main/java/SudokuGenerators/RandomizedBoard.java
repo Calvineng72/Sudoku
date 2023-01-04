@@ -23,12 +23,11 @@ public class RandomizedBoard {
    * Constructor for the RandomizedBoard class
    *
    * @param boardSize - length of the sudoku board
-   * @param blockSize - length of one of the sudoku board blocks
    */
-  public RandomizedBoard(int boardSize, int blockSize) {
+  public RandomizedBoard(int boardSize) {
     this.sudokuBoard = new int[boardSize][boardSize];
     this.boardSize = boardSize;
-    this.blockSize = blockSize;
+    this.blockSize = (int) Math.sqrt(boardSize);
   }
 
   /**
