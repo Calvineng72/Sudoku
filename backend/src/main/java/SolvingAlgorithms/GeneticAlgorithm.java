@@ -48,6 +48,9 @@ public class GeneticAlgorithm {
   // Initial mutation rate
   private static final double MUTATION_RATE = 0.03;
 
+  // Initial mutation rate
+  private static final int ELITE_SIZE = 250;
+
   /**
    * Constructor for the GeneticAlgorithm class
    *
@@ -88,7 +91,7 @@ public class GeneticAlgorithm {
     int bestFitness = Integer.MIN_VALUE;
 
     // Run the genetic algorithm for a maximum of 200 generations
-    while (generation < 200) {
+    while (generation < 100) {
       // Select the fittest individuals for elitism
       List<int[][]> fittestIndividuals = selectFittestIndividuals(fitnesses);
 
@@ -135,7 +138,7 @@ public class GeneticAlgorithm {
 
   /**
    * Creates an individual (sudoku board) with randomly placed values based upon the original
-   * puzzle provided to the class.
+   * puzzle provided to the class, ensuring the right number of each number appears in the puzzle.
    *
    * @return The created individual (sudoku board) as a 2D int array
    */
@@ -145,11 +148,32 @@ public class GeneticAlgorithm {
         .map(int[]::clone)
         .toArray(int[][]::new);
 
-    // Fill empty cells with random values
+    // Create a HashMap to store the count of each number present in the puzzle
+    List<Integer> missingNumbers = new ArrayList<>();
+    for (int i = 1; i <= this.boardSize; i++) {
+      for (int j = 0; j < this.boardSize; j++) {
+        missingNumbers.add(i);
+      }
+    }
+
+    // Remove the numbers already present in the puzzle from the list
+    for (int row = 0; row < this.boardSize; row++) {
+      for (int column = 0; column < this.boardSize; column++) {
+        int value = puzzle[row][column];
+        if (value != NO_VALUE) {
+          missingNumbers.remove((Integer) value);
+        }
+      }
+    }
+
+    // Shuffle the list of missing numbers
+    Collections.shuffle(missingNumbers);
+
+    // Add the missing numbers to the puzzle
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
         if (puzzle[row][column] == NO_VALUE) {
-          puzzle[row][column] = random.nextInt(this.boardSize) + 1;
+          puzzle[row][column] = missingNumbers.remove(0);
         }
       }
     }
@@ -253,7 +277,7 @@ public class GeneticAlgorithm {
 
     // Select the fittest individuals
     return indices.stream()
-        .limit(100)
+        .limit(ELITE_SIZE)
         .map(i -> this.population.get(i))
         .collect(Collectors.toList());
   }
@@ -312,10 +336,8 @@ public class GeneticAlgorithm {
     return child;
   }
 
-
-
   /**
-   * Mutates the given individual (sudoku board) by randomly changing a cell's value.
+   * Mutates the given individual (sudoku board) by randomly swapping two cells' values.
    *
    * @param individual The individual (sudoku board) to be mutated
    * @return The mutated individual (sudoku board)
@@ -324,8 +346,14 @@ public class GeneticAlgorithm {
     for (int row = 0; row < this.boardSize; row++) {
       for (int column = 0; column < this.boardSize; column++) {
         if (this.sudokuBoard[row][column] == NO_VALUE && random.nextDouble() < MUTATION_RATE) {
-          int mutation = random.nextInt(this.boardSize) + 1;
-          individual[row][column] = mutation;
+          // Select a random cell to swap with
+          int swapRow = random.nextInt(this.boardSize);
+          int swapColumn = random.nextInt(this.boardSize);
+
+          // Swap the values of the two cells
+          int temp = individual[row][column];
+          individual[row][column] = individual[swapRow][swapColumn];
+          individual[swapRow][swapColumn] = temp;
         }
       }
     }
@@ -474,4 +502,58 @@ public class GeneticAlgorithm {
 //      }
 //    }
 //    return individual;
+//  }
+//  private int[][] createIndividual() {
+//    // Create a copy of the original sudoku board
+//    int[][] puzzle = Arrays.stream(this.sudokuBoard)
+//        .map(int[]::clone)
+//        .toArray(int[][]::new);
+//
+//    // Fill empty cells with random values
+//    for (int row = 0; row < this.boardSize; row++) {
+//      for (int column = 0; column < this.boardSize; column++) {
+//        if (puzzle[row][column] == NO_VALUE) {
+//          puzzle[row][column] = random.nextInt(this.boardSize) + 1;
+//        }
+//      }
+//    }
+//
+//    return puzzle;
+//  }
+//  private int[][] mutate(int[][] individual) {
+//    for (int row = 0; row < this.boardSize; row++) {
+//      for (int column = 0; column < this.boardSize; column++) {
+//        if (this.sudokuBoard[row][column] == NO_VALUE && random.nextDouble() < MUTATION_RATE) {
+//          int mutation = random.nextInt(this.boardSize) + 1;
+//          individual[row][column] = mutation;
+//        }
+//      }
+//    }
+//
+//    return individual;
+//  }
+//  private int[][] crossover(int[][] parent1, int[][] parent2) {
+//    // Create a copy of the original sudoku board
+//    int[][] child = Arrays.stream(this.sudokuBoard)
+//        .map(int[]::clone)
+//        .toArray(int[][]::new);
+//
+//    // Randomly select a crossover point
+//    int crossoverRow = this.random.nextInt(this.boardSize);
+//    int crossoverColumn = this.random.nextInt(this.boardSize);
+//
+//    // Fill the child with values from the parents according to the crossover point
+//    for (int row = 0; row < this.boardSize; row++) {
+//      for (int column = 0; column < this.boardSize; column++) {
+//        if (this.sudokuBoard[row][column] == NO_VALUE) {
+//          if (row < crossoverRow || (row == crossoverRow && column <= crossoverColumn)) {
+//            child[row][column] = parent1[row][column];
+//          } else {
+//            child[row][column] = parent2[row][column];
+//          }
+//        }
+//      }
+//    }
+//
+//    return child;
 //  }
