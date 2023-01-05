@@ -19,7 +19,7 @@ public class SudokuController {
     puzzle.removeValues();
     int[][] sudoku = puzzle.getSudokuBoard();
 
-    // Create map with success response
+    // Create map with responses
     Map<String, int[][]> responses = new HashMap<>();
     responses.put("sudoku", sudoku);
     responses.put("solution", solution);
