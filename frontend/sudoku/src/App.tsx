@@ -1,16 +1,18 @@
-import styles from '../styles/Home.module.css'
-import createGameEnvironment from '../components/SudokuBoard'
+import './App.css';
+import createGameEnvironment from './SudokuBoard';
+import Header from './components/Header';
 
-export default function Home() {  
+export default function App() {  
   return (
-    <div className={styles.container}>
+    <div className='container-fluid'>
+      <Header></Header>
       <div id='puzzle' className='puzzle'>
         {createGameEnvironment().map((square) => square)}
       </div>
-      <button onClick={createPuzzle}>Create Puzzle</button>
-      <button onClick={check}>Check</button>
-      <button onClick={solve}>Solve</button>
-      <button onClick={clear}>Clear</button>
+      <button className='gameButton' onClick={createPuzzle}>Create Puzzle</button>
+      <button className='gameButton' onClick={check}>Check</button>
+      <button className='gameButton' onClick={solve}>Solve</button>
+      <button className='gameButton' onClick={clear}>Clear</button>
     </div>
   )
 }
@@ -19,7 +21,7 @@ let solution: number[][] = [];
 let puzzle: number[][] = [];
 
 async function fetchPuzzle(): Promise<void> {
-  await fetch('http://localhost:3232/getSudoku')
+  await fetch('http://localhost:8080/getSudoku?boardSize=9')
     .then((r) => r.json())
     .then((json) => {
       solution = json.solution;

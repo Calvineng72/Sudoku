@@ -1,0 +1,13 @@
+.puzzle {
+  width: 540px;
+  height: 550px;
+}
+
+.gameButton {
+  margin-right: 0.5%;
+}
+
+.container-fluid {
+  padding-left: 3%;
+  padding-right: 3%;
+}
