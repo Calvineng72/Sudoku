@@ -1,6 +1,7 @@
 .puzzle {
   width: 540px;
   height: 550px;
+  margin-right: 3%;
 }
 
 .gameButton {
@@ -10,4 +11,20 @@
 .container-fluid {
   padding-left: 3%;
   padding-right: 3%;
+}
+
+.gameButton {
+  background-color: #d7f8da;
+}
+
+.size {
+  float: right;
+}
+
+.puzzle-container {
+  display: flex;
+}
+
+.form-select {
+  margin-bottom: 5%;
 }

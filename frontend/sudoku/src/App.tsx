@@ -1,18 +1,24 @@
 import './App.css';
 import createGameEnvironment from './SudokuBoard';
 import Header from './components/Header';
+import SudokuSettings from './components/SudokuSettings';
+import About from './components/About';
 
-export default function App() {  
+export default function App() {
   return (
     <div className='container-fluid'>
       <Header></Header>
-      <div id='puzzle' className='puzzle'>
-        {createGameEnvironment().map((square) => square)}
+      <div className='puzzle-container'>
+        <div id='puzzle' className='puzzle'>
+          {createGameEnvironment().map((square) => square)}
+        </div>
+        <SudokuSettings></SudokuSettings>
       </div>
-      <button className='gameButton' onClick={createPuzzle}>Create Puzzle</button>
-      <button className='gameButton' onClick={check}>Check</button>
-      <button className='gameButton' onClick={solve}>Solve</button>
-      <button className='gameButton' onClick={clear}>Clear</button>
+      <button type="button" className='btn btn-outline gameButton' onClick={createPuzzle}>Create Puzzle</button>
+      <button type="button" className='btn btn-outline gameButton' onClick={check}>Check</button>
+      <button type="button" className='btn btn-outline gameButton' onClick={solve}>Solve</button>
+      <button type="button" className='btn btn-outline gameButton' onClick={clear}>Clear</button>
+      <About></About>
     </div>
   )
 }
@@ -37,10 +43,10 @@ async function createPuzzle() {
     row.forEach((value, colIndex) => {
       const index = rowIndex * 9 + colIndex;
       const input = inputs[index];
-        if (value !== 0) {
-          input.value = value.toString();
-          input.setAttribute('disabled', 'true')
-        }
+      if (value !== 0) {
+        input.value = value.toString();
+        input.setAttribute('disabled', 'true')
+      }
     });
   });
 }
@@ -51,13 +57,13 @@ function check() {
     row.forEach((value, colIndex) => {
       const index = rowIndex * 9 + colIndex;
       const input = inputs[index];
-        if (parseInt(input.value) === value) {
-          input.style.color = 'green';
-          input.setAttribute('disabled', 'true');
-        }
-        else if (input.value !== '') {
-          input.style.color = 'red';
-        }
+      if (parseInt(input.value) === value) {
+        input.style.color = 'green';
+        input.setAttribute('disabled', 'true');
+      }
+      else if (input.value !== '') {
+        input.style.color = 'red';
+      }
     });
   });
 }
