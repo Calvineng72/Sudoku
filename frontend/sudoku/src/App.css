@@ -1,16 +1,21 @@
+.container {
+  width: 564px;
+  justify-content: center;
+}
+
 .puzzle {
   width: 540px;
-  height: 550px;
-  margin-right: 3%;
+  height: 540px;
+  margin-bottom: 1%;
+}
+
+.puzzle-container {
+  display: flex;
+  justify-content: center;
 }
 
 .gameButton {
   margin-right: 0.5%;
-}
-
-.container-fluid {
-  padding-left: 3%;
-  padding-right: 3%;
 }
 
 .gameButton {
@@ -21,10 +26,6 @@
   float: right;
 }
 
-.puzzle-container {
-  display: flex;
-}
-
-.form-select {
-  margin-bottom: 5%;
+.difficulty {
+  float: right;
 }

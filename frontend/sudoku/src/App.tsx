@@ -1,23 +1,23 @@
 import './App.css';
-import createGameEnvironment from './SudokuBoard';
+import createGameEnvironment from './components/SudokuBoard';
 import Header from './components/Header';
 import SudokuSettings from './components/SudokuSettings';
 import About from './components/About';
 
 export default function App() {
   return (
-    <div className='container-fluid'>
+    <div className='container'>
       <Header></Header>
       <div className='puzzle-container'>
         <div id='puzzle' className='puzzle'>
           {createGameEnvironment().map((square) => square)}
         </div>
-        <SudokuSettings></SudokuSettings>
       </div>
       <button type="button" className='btn btn-outline gameButton' onClick={createPuzzle}>Create Puzzle</button>
       <button type="button" className='btn btn-outline gameButton' onClick={check}>Check</button>
       <button type="button" className='btn btn-outline gameButton' onClick={solve}>Solve</button>
       <button type="button" className='btn btn-outline gameButton' onClick={clear}>Clear</button>
+      <SudokuSettings></SudokuSettings>
       <About></About>
     </div>
   )
