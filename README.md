@@ -30,6 +30,10 @@ In order to run the backend tests for this project, you can navigate to the back
 
 I am working on deploying this application with Heroku once I complete Algorithm X.
 
+## To-Do
+
+I want to deploy this application with Heroku and implement the Algorithm X. In addition, there is work to be done in generating sudoku puzzles with unique solutions in order to guarantee a user's solution is the same as that there puzzle is compared with. Another possibility is ensuring that a user's solution is a valid sudoku. 
+
 ## Acknowledgments
 
 I used the following resources to develop this project:
