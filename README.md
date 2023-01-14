@@ -1,6 +1,9 @@
 # Sudoku
 
-Sudoku is a web-application built with Next.js and Material UI that creates sudoku puzzles and allows users to solve them. Users may receive assistance from the "check" and "solve" buttons, which checks their progress and solves the puzzle, respectively. The goal of the project was to solidify understandings of API fetches and gain more practice with frontend engineering. In the future, I hope to implement the Algorithm X with Dancing Links to solve sudoku puzzles, as it is faster than the already implemented backtracing algorithm. 
+Sudoku is a web-application built with Next.js and Material UI that creates sudoku puzzles and allows users to solve them. Users may receive assistance from the "check" and "solve" buttons, which checks their progress and solves the puzzle, respectively. The goal of the project was to solidify understandings of API fetches and gain more practice with frontend engineering. In the future, I hope to implement the Algorithm X with Dancing Links to solve sudoku puzzles, as it is faster than the already implemented backtracing algorithm.
+
+![Alt text](project_screenshots/empty-sudoku.png "Empty Sudoku")
+![Alt text](project_screenshots/sample-sudoku.png "Sample Sudoku")
 
 ## Getting Started
 
