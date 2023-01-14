@@ -12,7 +12,7 @@ Sudoku is a web-application built with Next.js and Material UI that creates sudo
     src="project_screenshots/sample-sudoku.png"
     alt="Sample Sudoku"
     title="Sample Sudoku"
-    style="display: inline-block; margin: 0 auto; width: 350px; height: 350px">
+    style="display: inline-block; margin: 0 auto; width: 325px; height: 350px">
 </p>
 
 ## Getting Started
