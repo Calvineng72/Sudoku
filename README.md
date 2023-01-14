@@ -34,3 +34,11 @@ I am working on deploying this application with Heroku once I complete Algorithm
 
 I used the following resources to develop this project:
 
+- https://javascript.plainenglish.io/build-a-sudoku-solver-app-with-javascript-32afbe384d1e
+- https://medium.com/javarevisited/building-a-sudoku-solver-in-java-with-dancing-links-180274b0b6c1#:~:text=Dancing%20Links%20is%20a%20technique,exercise%20for%20beginners%20in%20programming.
+- https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/sudoku.paper.html
+- https://www.kth.se/social/files/58861771f276547fe1dbf8d1/HLaestanderMHarrysson_dkand14.pdf
+- https://www.geeksforgeeks.org/implementation-of-exact-cover-problem-and-algorithm-x-using-dlx/
+- https://en.wikipedia.org/wiki/Sudoku_solving_algorithms
+- http://julian.togelius.com/Moraglio2006Product.pdf
+- https://osuva.uwasa.fi/bitstream/handle/10024/10326/Osuva_Amil_Mantere_2019a.pdf?sequence=2&isAllowed=y
